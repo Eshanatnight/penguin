@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use log::info;
 use pingora::services::background::background_service;
 use std::{sync::Arc, time::Duration};
 use structopt::StructOpt;
@@ -24,9 +23,7 @@ impl ProxyHttp for LB {
             .select(b"", 256) // hash doesn't matter
             .unwrap();
 
-        info!("upstream peer is: {:?}", upstream);
-
-        let peer = Box::new(HttpPeer::new(upstream, false, "one.one.one.one".to_string()));
+        let peer = Box::new(HttpPeer::new(upstream, false, "".to_string()));
         Ok(peer)
     }
 
@@ -36,9 +33,6 @@ impl ProxyHttp for LB {
         _upstream_request: &mut pingora_http::RequestHeader,
         _ctx: &mut Self::CTX,
     ) -> Result<()> {
-        // upstream_request
-            // .insert_header("Host", "one.one.one.one")
-            // .unwrap();
         Ok(())
     }
 }
@@ -51,7 +45,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut server = Server::new(Some(opt))?;
     server.bootstrap();
 
-    let mut upstreams = LoadBalancer::try_from_iter(["127.0.0.1:8080"/* , "127.0.0.1:8888" */])?;
+    let mut upstreams = LoadBalancer::try_from_iter(["127.0.0.1:8080", "127.0.0.1:8888"])?;
 
     let hc = health_check::TcpHealthCheck::new();
     upstreams.set_health_check(hc);
