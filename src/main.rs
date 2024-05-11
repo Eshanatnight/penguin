@@ -82,6 +82,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     server.add_service(lb);
     server.add_service(background);
     server.run_forever();
-
-    Ok(())
 }
